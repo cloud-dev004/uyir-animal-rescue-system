@@ -44,11 +44,11 @@ const UyirAdmin = () => {
             setLoading(true);
             try {
                 const [repRes, volRes, vetRes, drvRes, adopRes] = await Promise.all([
-                    axios.get('http://localhost:5000/api/admin/reports'),
-                    axios.get('http://localhost:5000/api/admin/volunteers'),
-                    axios.get('http://localhost:5000/api/admin/vetclinics'),
-                    axios.get('http://localhost:5000/api/admin/drives'),
-                    axios.get('http://localhost:5000/api/admin/adoptions')
+                    axios.get('https://uyir-animal-rescue-system.onrender.com/api/admin/reports'),
+                    axios.get('https://uyir-animal-rescue-system.onrender.com/api/admin/volunteers'),
+                    axios.get('https://uyir-animal-rescue-system.onrender.com/api/admin/vetclinics'),
+                    axios.get('https://uyir-animal-rescue-system.onrender.com/api/admin/drives'),
+                    axios.get('https://uyir-animal-rescue-system.onrender.com/api/admin/adoptions')
                 ]);
                 setReports(repRes.data.data || []);
                 setVolunteers(volRes.data.data || []);

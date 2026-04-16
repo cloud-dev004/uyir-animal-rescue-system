@@ -20,7 +20,7 @@ const UyirVolunteer = () => {
     const fetchMyRescues = async () => {
         if (user && user._id) {
             try {
-                const response = await axios.get(`http://localhost:5000/api/reports/assigned/${user._id}`);
+                const response = await axios.get(`https://uyir-animal-rescue-system.onrender.com/api/reports/assigned/${user._id}`);
                 if (response.data.success) {
                     setMyRescues(response.data.data);
                 }
@@ -42,7 +42,7 @@ const UyirVolunteer = () => {
             return;
         }
         try {
-            const response = await axios.post(`http://localhost:5000/api/reports/${id}/accept`, { userId: user._id });
+            const response = await axios.post(`https://uyir-animal-rescue-system.onrender.com/api/reports/${id}/accept`, { userId: user._id });
             if (response.data.success) {
                 setOpenCases(openCases.filter(c => c._id !== id));
                 setMyRescues([response.data.data, ...myRescues]);
@@ -58,7 +58,7 @@ const UyirVolunteer = () => {
     // --- Mark case as Resolved → updates status + adds credits to volunteer ---
     const handleResolveCase = async (id) => {
         try {
-            const response = await axios.put(`http://localhost:5000/api/reports/${id}/resolve`);
+            const response = await axios.put(`https://uyir-animal-rescue-system.onrender.com/api/reports/${id}/resolve`);
             if (response.data.success) {
                 // Remove from myRescues list
                 setMyRescues(prev => prev.filter(c => c._id !== id));
@@ -83,7 +83,7 @@ const UyirVolunteer = () => {
     useEffect(() => {
         const syncUserWithBackend = async (phone) => {
             try {
-                const response = await axios.post('http://localhost:5000/api/users/login', { phone });
+                const response = await axios.post('https://uyir-animal-rescue-system.onrender.com/api/users/login', { phone });
                 if (response.data.success) {
                     setUser(response.data.data);
                     localStorage.setItem('volunteerUser', JSON.stringify(response.data.data));
@@ -136,7 +136,7 @@ const UyirVolunteer = () => {
     useEffect(() => {
         const fetchOpenCases = async () => {
             try {
-                const response = await axios.get('http://localhost:5000/api/reports/open');
+                const response = await axios.get('https://uyir-animal-rescue-system.onrender.com/api/reports/open');
                 if (response.data.success) {
                     setOpenCases(response.data.data);
                 }

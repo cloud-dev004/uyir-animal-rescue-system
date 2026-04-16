@@ -33,7 +33,7 @@ const VolunteerRegister = () => {
     setIsSubmitting(true);
     setErrorMsg('');
     try {
-      const response = await axios.post('http://localhost:5000/api/users/register', {
+      const response = await axios.post('https://uyir-animal-rescue-system.onrender.com/api/users/register', {
         ...formData,
         role: 'volunteer'
       });

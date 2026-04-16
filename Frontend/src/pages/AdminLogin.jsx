@@ -12,7 +12,7 @@ const AdminLogin = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post('http://localhost:5000/api/users/login', { phone, password });
+      const res = await axios.post('https://uyir-animal-rescue-system.onrender.com/api/users/login', { phone, password });
       
       if (res.data.success && res.data.data.role === 'admin') {
         localStorage.setItem('adminUser', JSON.stringify(res.data.data));

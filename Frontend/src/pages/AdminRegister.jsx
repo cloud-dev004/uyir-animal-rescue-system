@@ -28,7 +28,7 @@ const AdminRegister = () => {
         role: 'admin' // Force the database to lock this as an admin request
       };
       
-      const res = await axios.post('http://localhost:5000/api/users/register', payload);
+      const res = await axios.post('https://uyir-animal-rescue-system.onrender.com/api/users/register', payload);
       
       if (res.data.success) {
         setSuccess('Administrator access requested securely. You may log in now.');
