@@ -1,0 +1,12 @@
+# Root monorepo ignores
+node_modules/
+.DS_Store
+
+# IDE and Editor directories
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
