@@ -115,7 +115,7 @@ const UyirCitizen = () => {
         };
 
         try {
-            const response = await axios.post('http://localhost:5000/api/reports', reportData);
+            const response = await axios.post('https://uyir-animal-rescue-system.onrender.com/api/reports', reportData);
             
             if (response.data.success) {
                 alert(`Report submitted successfully! Case ID: ${response.data.data.caseId}`);
@@ -141,7 +141,7 @@ const UyirCitizen = () => {
     const handleTrackCase = async () => {
         if (!trackId) return;
         try {
-            const response = await axios.get(`http://localhost:5000/api/reports/track/${trackId}`);
+            const response = await axios.get(`https://uyir-animal-rescue-system.onrender.com/api/reports/track/${trackId}`);
             if (response.data.success) {
                 setTrackedCase(response.data.data);
             }
@@ -159,7 +159,7 @@ const UyirCitizen = () => {
     useEffect(() => {
         const fetchStats = async () => {
             try {
-                const response = await axios.get('http://localhost:5000/api/reports/stats');
+                const response = await axios.get('https://uyir-animal-rescue-system.onrender.com/api/reports/stats');
                 if (response.data.success) {
                     setStats(response.data.data);
                 }
@@ -473,7 +473,7 @@ const UyirCitizen = () => {
                                     {trackedCase.photos.map((_, idx) => (
                                         <img 
                                             key={idx} 
-                                            src={`http://localhost:5000/api/reports/${trackedCase._id}/photo/${idx}`} 
+                                            src={`https://uyir-animal-rescue-system.onrender.com/api/reports/${trackedCase._id}/photo/${idx}`} 
                                             alt={`Animal ${idx + 1}`}
                                             style={{ width: '60px', height: '60px', borderRadius: '8px', objectFit: 'cover', border: '1px solid rgba(255,255,255,0.1)' }}
                                         />
