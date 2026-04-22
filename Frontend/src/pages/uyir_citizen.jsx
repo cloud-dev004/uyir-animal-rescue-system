@@ -8,7 +8,8 @@ const UyirCitizen = () => {
     const [severity, setSeverity] = useState('Moderate');
     const [description, setDescription] = useState('');
     const [phone, setPhone] = useState('');
-    const [photos, setPhotos] = useState([]);
+    const [photos, setPhotos] = useState([]); // Stores preview URLs
+    const [photoFiles, setPhotoFiles] = useState([]); // Stores raw File objects
     const [trackId, setTrackId] = useState('');
     const [trackedCase, setTrackedCase] = useState(null);
     const [stats, setStats] = useState({ openCases: '--', avgResponse: '--', volunteersOnline: '--' });
@@ -71,23 +72,34 @@ const UyirCitizen = () => {
 
     const handlePhotoUpload = (e) => {
         if (e.target.files && e.target.files.length > 0) {
-           
-            const newPhotos = Array.from(e.target.files).filter(f => f.type.startsWith('image/')).slice(0, 3 - photos.length);
-            if (newPhotos.length > 0) {
-                // Create local object URLs for preview
-                const photoPreviews = newPhotos.map(file => URL.createObjectURL(file));
+            const selectedFiles = Array.from(e.target.files).filter(f => f.type.startsWith('image/')).slice(0, 3 - photos.length);
+            
+            if (selectedFiles.length > 0) {
+                const photoPreviews = selectedFiles.map(file => URL.createObjectURL(file));
                 setPhotos([...photos, ...photoPreviews]);
+                setPhotoFiles([...photoFiles, ...selectedFiles]);
             }
         }
     };
 
     const removePhoto = (index) => {
         setPhotos(photos.filter((_, i) => i !== index));
+        setPhotoFiles(photoFiles.filter((_, i) => i !== index));
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         
+        // Convert files to Base64 for submission
+        const photosBase64 = await Promise.all(
+            photoFiles.map(file => new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = error => reject(error);
+            }))
+        );
+
         const reportData = {
             reporterPhone: phone,
             animalType: animalType.toLowerCase(),
@@ -98,11 +110,12 @@ const UyirCitizen = () => {
                 coordinates: gpsLocation ? [gpsLocation.lng, gpsLocation.lat] : [0, 0] 
             },
             city: city,
-            area: area
+            area: area,
+            photos: photosBase64
         };
 
         try {
-            const response = await axios.post('https://uyir-animal-rescue-system.onrender.com/api/reports', reportData);
+            const response = await axios.post('http://localhost:5000/api/reports', reportData);
             
             if (response.data.success) {
                 alert(`Report submitted successfully! Case ID: ${response.data.data.caseId}`);
@@ -113,6 +126,7 @@ const UyirCitizen = () => {
                 setDescription('');
                 setPhone('');
                 setPhotos([]);
+                setPhotoFiles([]);
             }
         } catch (error) {
             console.error('Error submitting report:', error);
@@ -127,7 +141,7 @@ const UyirCitizen = () => {
     const handleTrackCase = async () => {
         if (!trackId) return;
         try {
-            const response = await axios.get(`https://uyir-animal-rescue-system.onrender.com/api/reports/track/${trackId}`);
+            const response = await axios.get(`http://localhost:5000/api/reports/track/${trackId}`);
             if (response.data.success) {
                 setTrackedCase(response.data.data);
             }
@@ -145,7 +159,7 @@ const UyirCitizen = () => {
     useEffect(() => {
         const fetchStats = async () => {
             try {
-                const response = await axios.get('https://uyir-animal-rescue-system.onrender.com/api/reports/stats');
+                const response = await axios.get('http://localhost:5000/api/reports/stats');
                 if (response.data.success) {
                     setStats(response.data.data);
                 }
@@ -451,8 +465,22 @@ const UyirCitizen = () => {
                         <div className="c-widget c-active-case-widget">
                             <div className="c-widget-badge">ACTIVE CASE - LIVE</div>
                             <h2 className="c-case-id-large">{trackedCase.caseId}</h2>
-                            <p className="c-case-desc" style={{textTransform: 'capitalize'}}>{trackedCase.animalType} - {trackedCase.address || 'Address info pending'}</p>
+                             <p className="c-case-desc" style={{textTransform: 'capitalize'}}>{trackedCase.animalType} - {trackedCase.address || 'Address info pending'}</p>
                             
+                            {/* Display Case Photos */}
+                            {trackedCase.photos && trackedCase.photos.length > 0 && (
+                                <div className="c-tracked-photos" style={{ display: 'flex', gap: '10px', margin: '15px 0' }}>
+                                    {trackedCase.photos.map((_, idx) => (
+                                        <img 
+                                            key={idx} 
+                                            src={`http://localhost:5000/api/reports/${trackedCase._id}/photo/${idx}`} 
+                                            alt={`Animal ${idx + 1}`}
+                                            style={{ width: '60px', height: '60px', borderRadius: '8px', objectFit: 'cover', border: '1px solid rgba(255,255,255,0.1)' }}
+                                        />
+                                    ))}
+                                </div>
+                            )}
+
                             <div className="c-timeline">
                                 {/* Status 1: Report Submitted */}
                                 <div className="c-t-item completed">

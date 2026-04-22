@@ -675,3 +675,10 @@
 .a-dropdown-item.red:hover {
     background-color: rgba(244, 63, 94, 0.1);
 }
+
+.password-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+}

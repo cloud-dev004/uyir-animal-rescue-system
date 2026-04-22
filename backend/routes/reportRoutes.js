@@ -1,9 +1,12 @@
 const express = require('express');
 const router = express.Router();
-const { createReport, trackReport, getSystemStats, getOpenReports, acceptReport, getMyReports, resolveReport } = require('../controllers/reportController');
+const { createReport, trackReport, getSystemStats, getOpenReports, acceptReport, getMyReports, resolveReport, getReportPhoto } = require('../controllers/reportController');
 
 // Route: POST /api/reports
 router.post('/', createReport);
+
+// Route: GET /api/reports/:id/photo/:index
+router.get('/:id/photo/:index', getReportPhoto);
 
 // Route: GET /api/reports/open
 router.get('/open', getOpenReports);

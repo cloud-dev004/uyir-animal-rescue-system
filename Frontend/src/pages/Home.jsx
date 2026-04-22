@@ -1,22 +1,36 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { ArrowRight, User } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { ArrowRight, User, Shield, Stethoscope, Heart } from 'lucide-react';
 import './Home.css';
 
 const Home = () => {
-  const [profileLink, setProfileLink] = useState('/VolunteerLogin');
+  const [showProfileOptions, setShowProfileOptions] = useState(false);
+  const navigate = useNavigate();
+  
+  const handleProfileClick = (e) => {
+    e.preventDefault();
+    
+    // Check for administrative session
+    if (sessionStorage.getItem('adminUser')) {
+      navigate('/uyir_admin');
+      return;
+    } 
+    
+    // Check for volunteer session
+    if (sessionStorage.getItem('volunteerUser')) {
+      navigate('/uyir_volunteer');
+      return;
+    }
 
-  useEffect(() => {
-     // Check for administrative session
-     if (localStorage.getItem('adminUser')) {
-        setProfileLink('/uyir_admin');
-     } 
-     // Check for volunteer session
-     else if (localStorage.getItem('user')) {
-        const u = JSON.parse(localStorage.getItem('user'));
-        if (u.role === 'volunteer') setProfileLink('/uyir_volunteer');
-     }
-  }, []);
+    // Check for vet session (assuming vetUser)
+    if (sessionStorage.getItem('vetUser')) {
+      navigate('/uyir_vet');
+      return;
+    }
+
+    // If no session, toggle options dropdown
+    setShowProfileOptions(!showProfileOptions);
+  };
 
   return (
     <div className="home-container">
@@ -42,9 +56,30 @@ const Home = () => {
               Report an Animal
            </button>
            </Link>
-           <Link to={profileLink} className="nav-profile">
-              <User size={20} />
-           </Link>
+            <div className="profile-container" style={{ position: 'relative' }}>
+              <button 
+                onClick={handleProfileClick} 
+                className="nav-profile"
+                style={{ background: 'none', border: 'none', color: 'inherit', cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+              >
+                 <User size={20} />
+              </button>
+              
+              {showProfileOptions && (
+                <div className="profile-dropdown">
+                  <div className="dropdown-header">Sign in as</div>
+                  <Link to="/VolunteerLogin" className="dropdown-item">
+                    <User size={16} /> <span>Volunteer</span>
+                  </Link>
+                  <Link to="/AdminLogin" className="dropdown-item">
+                    <Shield size={16} /> <span>Administrator</span>
+                  </Link>
+                  <Link to="/uyir_vet" className="dropdown-item">
+                    <Stethoscope size={16} /> <span>Vet Clinic Portal</span>
+                  </Link>
+                </div>
+              )}
+            </div>
         </div>
       </nav>
 

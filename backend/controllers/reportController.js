@@ -1,6 +1,7 @@
 const Report = require('../models/Report');
 const User = require('../models/User');
 const Case = require('../models/Case');
+const sharp = require('sharp');
 const { successResponse, errorResponse } = require('../utils/apiResponse');
 
 // @desc    Resolve a rescue case (Volunteer) and create case history
@@ -93,6 +94,33 @@ const createReport = async (req, res) => {
     // E.g. UYR-2026-RANDOM4
     const caseIdString = `UYR-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
 
+    // Process photos - Compress and convert to Buffer
+    const processedPhotos = [];
+    if (photos && Array.isArray(photos)) {
+      for (const photo of photos) {
+        if (typeof photo === 'string' && photo.startsWith('data:image')) {
+          try {
+            const parts = photo.split(';base64,');
+            const buffer = Buffer.from(parts[1], 'base64');
+            
+            // Compress and resize
+            const compressedBuffer = await sharp(buffer)
+              .resize(800, 800, { fit: 'inside', withoutEnlargement: true })
+              .jpeg({ quality: 70 })
+              .toBuffer();
+              
+            processedPhotos.push({
+              data: compressedBuffer,
+              contentType: 'image/jpeg'
+            });
+          } catch (sharpError) {
+            console.error('Error processing image with sharp:', sharpError);
+            // Skip problematic images
+          }
+        }
+      }
+    }
+
     const newReport = new Report({
       caseId: caseIdString,
       reporterPhone,
@@ -103,7 +131,7 @@ const createReport = async (req, res) => {
       address: address || `${area ? area + ', ' : ''}${city || ''}`,
       city,
       area,
-      photos: photos || [],
+      photos: processedPhotos,
       status: 'open'
     });
 
@@ -215,6 +243,27 @@ const getMyReports = async (req, res) => {
   }
 };
 
+// @desc    Serve a report photo as binary
+// @route   GET /api/reports/:id/photo/:index
+// @access  Public
+const getReportPhoto = async (req, res) => {
+  try {
+    const { id, index } = req.params;
+    const report = await Report.findById(id);
+    
+    if (!report || !report.photos || !report.photos[index]) {
+      return res.status(404).send('Photo not found.');
+    }
+
+    const photo = report.photos[index];
+    res.set('Content-Type', photo.contentType);
+    res.send(photo.data);
+  } catch (error) {
+    console.error('Error serving photo:', error);
+    res.status(500).send('Server error while retrieving photo.');
+  }
+};
+
 module.exports = {
   createReport,
   trackReport,
@@ -222,5 +271,6 @@ module.exports = {
   getOpenReports,
   acceptReport,
   getMyReports,
-  resolveReport
+  resolveReport,
+  getReportPhoto
 };

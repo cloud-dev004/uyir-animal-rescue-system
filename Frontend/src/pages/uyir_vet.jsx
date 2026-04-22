@@ -15,7 +15,7 @@ const UyirVet = () => {
     useEffect(() => {
         const fetchDashboard = async () => {
             try {
-                const res = await axios.get('https://uyir-animal-rescue-system.onrender.com/api/vet/dashboard');
+                const res = await axios.get('http://localhost:5000/api/vet/dashboard');
                 if (res.data.success) {
                     setStats(res.data.data.stats);
                     

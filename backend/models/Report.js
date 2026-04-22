@@ -11,7 +11,11 @@ const reportSchema = new mongoose.Schema({
   area:          { type: String },
   animalType:    { type: String, enum: ['dog', 'cat', 'cow', 'bird', 'other'] },
   description:   { type: String },
-  photos:        [{ type: String }], // Cloudinary URLs
+  photos:        [{
+    data:        Buffer,
+    contentType: String
+  }], 
+
   severity:      { type: String, enum: ['mild', 'moderate', 'critical'], default: 'moderate' },
   status:        { 
                    type: String, 

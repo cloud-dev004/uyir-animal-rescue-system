@@ -56,12 +56,14 @@ exports.loginUser = async (req, res) => {
         const user = await User.findOne({ phone });
         
         if (!user) {
+            console.log(`Login failed: User with phone ${phone} not found`);
             return res.status(404).json({ success: false, message: 'User not found' });
         }
 
         // Compare password input with stored hash
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
+            console.log(`Login failed: Password mismatch for user ${phone}. Input length: ${password.length}`);
             return res.status(401).json({ success: false, message: 'Invalid authentication credentials' });
         }
 
